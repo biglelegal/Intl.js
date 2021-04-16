@@ -4,7 +4,7 @@
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "module",
-        "ecmaFeatures": {},
+        "ecmaFeatures": {}
     },
     "env": {
         "node": true,
@@ -16,7 +16,7 @@
         "arrow-parens": [2, "always"],
         "comma-dangle": [2, "never"],
         "eqeqeq": 2,
-        "linebreak-style": [2, "unix"],
+        "linebreak-style": [2, "windows"],
         "prefer-arrow-callback": 2,
         "semi": [2, "always"],
         "strict": [2, "never"],
