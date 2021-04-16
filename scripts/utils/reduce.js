@@ -1,20 +1,20 @@
-function replaceSpecialChars (ptn) {
-  // Matches CLDR number patterns, e.g. #,##0.00, #,##,##0.00, #,##0.##, etc.
-  let numPtn = /#(?:[\.,]#+)*0(?:[,\.][0#]+)*/;
+function replaceSpecialChars(ptn) {
+    // Matches CLDR number patterns, e.g. #,##0.00, #,##,##0.00, #,##0.##, etc.
+    let numPtn = /#(?:[\.,]#+)*0(?:[,\.][0#]+)*/;
 
-  return ptn
-      .replace(numPtn, '{number}')
-      .replace('+', '{plusSign}')
-      .replace('-', '{minusSign}')
-      .replace('%', '{percentSign}')
-      .replace('¤', '{currency}');
+    return ptn
+        .replace(numPtn, '{number}')
+        .replace('+', '{plusSign}')
+        .replace('-', '{minusSign}')
+        .replace('%', '{percentSign}')
+        .replace('¤', '{currency}');
 }
 
 /**
  * Parses a CLDR number formatting string into the object specified in ECMA-402
  * Returns an object with positivePattern and negativePattern properties
  */
-function createNumberFormats (ptn) {
+function createNumberFormats(ptn) {
     let patterns = ptn.split(';'),
 
         ret = {
@@ -41,26 +41,26 @@ export default function (locale, data) {
     // Get own property values, useful for converting object map to array when we
     // don't care about the keys.  Relies on predictable property ordering in V8.
     let gopv = function (o) {
-            return o ? Object.getOwnPropertyNames(o).map((e) => o[e]) : undefined;
-        };
+        return o ? Object.getOwnPropertyNames(o).map((e) => o[e]) : undefined;
+    };
     let latnNu = 'latn';
 
     // Copy numbering systems
-    let defaultNu   = data.numbers.defaultNumberingSystem;
+    let defaultNu = data.numbers.defaultNumberingSystem;
 
     // Map calendar names to BCP 47 unicode extension 'ca' keys
     let caMap = {
-              'gregorian':            'gregory',
-              'ethiopic-amete-alem':  'ethioaa',
-              'islamic-civil':        'islamicc'
-          };
+        'gregorian': 'gregory',
+        'ethiopic-amete-alem': 'ethioaa',
+        'islamic-civil': 'islamicc'
+    };
 
     // Default calendar is always gregorian, apparently
     let defCa = data.calendars.gregorian;
 
     // Any of the time format strings can give us some additional information
     let defaultTimeFormat = defCa.timeFormats[gopn(defCa.timeFormats)[0]];
-    let ampmTimeFormat    = defCa.dateTimeFormats.availableFormats.hms;
+    let ampmTimeFormat = defCa.dateTimeFormats.availableFormats.hms;
 
     // Result object to be returned
     let ret = {
@@ -70,14 +70,14 @@ export default function (locale, data) {
         date: {
             // Get supported calendars (as extension keys)
             ca: gopn(data.calendars)
-                    .map((cal) => caMap[cal] || cal)
+                .map((cal) => caMap[cal] || cal)
 
-                    // Move 'gregory' (the default) to the front, the rest is alphabetical
-                    .sort((a, b) => {
-                        return -(a === 'gregory') + (b === 'gregory') || a.localeCompare(b);
-                    }).filter((cal) => {
-                        return (cal.indexOf('-') < 0);
-                    }),
+                // Move 'gregory' (the default) to the front, the rest is alphabetical
+                .sort((a, b) => {
+                    return -(a === 'gregory') + (b === 'gregory') || a.localeCompare(b);
+                }).filter((cal) => {
+                    return (cal.indexOf('-') < 0);
+                }),
 
             // Boolean value indicating whether hours from 1 to 12 (true) or from 0 to
             // 11 (false) should be used. 'h' is 1 to 12, 'k' is 0 to 11.
@@ -92,7 +92,7 @@ export default function (locale, data) {
         },
         number: {
             // Numbering systems, with the default first
-            nu: (defaultNu === latnNu) ? [ latnNu ] : [ defaultNu, latnNu ],
+            nu: (defaultNu === latnNu) ? [latnNu] : [defaultNu, latnNu],
 
             // Formatting patterns
             patterns: {},
@@ -108,17 +108,21 @@ export default function (locale, data) {
     // Copy the numeric symbols for each numbering system
     gopn(data.numbers).filter(test.bind(/^symbols-/)).forEach((key) => {
         const sym = data.numbers[key];
-
+        if (locale === 'de-AT' && sym.group !== "," && sym.group !== ".") {
+            sym.group = ".";
+        }
         // Currently, Intl 402 only uses these symbols for numbers
         ret.number.symbols[key.split('-').pop()] = {
-            decimal:     sym.decimal,
-            group:       sym.group,
-            nan:         sym.nan,
-            plusSign:    sym.plusSign,
-            minusSign:   sym.minusSign,
+
+            decimal: sym.decimal,
+            group: sym.group,
+            nan: sym.nan,
+            plusSign: sym.plusSign,
+            minusSign: sym.minusSign,
             percentSign: sym.percentSign,
-            infinity:    sym.infinity
+            infinity: sym.infinity
         };
+
     });
 
     // Create number patterns from CLDR patterns
@@ -164,22 +168,22 @@ export default function (locale, data) {
         if ((frmt = data.calendars[cal].months) && (frmt = frmt.format)) {
             obj.months = {
                 narrow: gopv(frmt.narrow),
-                short:  gopv(frmt.abbreviated),
-                long:   gopv(frmt.wide)
+                short: gopv(frmt.abbreviated),
+                long: gopv(frmt.wide)
             };
         }
         if ((frmt = data.calendars[cal].days) && (frmt = frmt.format)) {
             obj.days = {
                 narrow: gopv(frmt.narrow),
-                short:  gopv(frmt.abbreviated),
-                long:   gopv(frmt.wide)
+                short: gopv(frmt.abbreviated),
+                long: gopv(frmt.wide)
             };
         }
         if ((frmt = data.calendars[cal].eras)) {
             obj.eras = {
                 narrow: gopv(frmt.eraNarrow),
-                short:  gopv(frmt.eraAbbr),
-                long:   gopv(frmt.eraNames)
+                short: gopv(frmt.eraAbbr),
+                long: gopv(frmt.eraNames)
             };
         }
         if ((frmt = data.calendars[cal].dayPeriods) && (frmt = frmt.format)) {
