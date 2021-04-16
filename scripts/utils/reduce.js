@@ -108,7 +108,7 @@ export default function (locale, data) {
     // Copy the numeric symbols for each numbering system
     gopn(data.numbers).filter(test.bind(/^symbols-/)).forEach((key) => {
         const sym = data.numbers[key];
-        if (locale === 'de-AT' && sym.group !== "," && sym.group !== ".") {
+        if (locale === 'de-AT') {
             sym.group = ".";
         }
         // Currently, Intl 402 only uses these symbols for numbers
